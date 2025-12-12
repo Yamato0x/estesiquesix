@@ -16,7 +16,21 @@ import android.util.Base64
 import java.io.ByteArrayOutputStream
 import com.example.myapplication.data.UserSession
 import com.example.myapplication.data.network.RetrofitClient
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.text.font.FontWeight
+
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun ProfileScreen() {
@@ -44,134 +58,225 @@ fun ProfileScreen() {
         profileImage = bitmap
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(text = "Perfil de Usuario", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Profile Image
-        if (profileImage != null) {
-            Image(
-                bitmap = profileImage!!.asImageBitmap(),
-                contentDescription = "Profile Picture",
-                modifier = Modifier.size(120.dp)
-            )
-        } else {
-            Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
-                Text("Sin foto")
-            }
-        }
-        Button(onClick = { 
-            cameraLauncher.launch(null)
-        }) {
-            Text("Tomar Foto")
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (isEditMode) {
-            // Edit Mode - Show TextFields
-            TextField(
-                value = nombreCompleto,
-                onValueChange = { nombreCompleto = it },
-                label = { Text("Nombre Completo") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = correo,
-                onValueChange = { correo = it },
-                label = { Text("Correo") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = nombreUsuario,
-                onValueChange = { nombreUsuario = it },
-                label = { Text("Nombre de Usuario") },
-                modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "PERFIL DE JUGADOR",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                ),
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        scope.launch {
-                            try {
-                                user?.let {
-                                    // Convert Bitmap to Base64
-                                    var fotoPerfilBase64: String? = user.foto_perfil
-                                    profileImage?.let { bitmap ->
-                                        val byteArrayOutputStream = ByteArrayOutputStream()
-                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
-                                        val byteArray = byteArrayOutputStream.toByteArray()
-                                        fotoPerfilBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
-                                    }
-
-                                    val updatedUser = it.copy(
-                                        nombreCompleto = nombreCompleto,
-                                        correo = correo,
-                                        nombreUsuario = nombreUsuario,
-                                        foto_perfil = fotoPerfilBase64
-                                    )
-                                    RetrofitClient.instance.updateUser(updatedUser)
-                                    UserSession.setUser(updatedUser)
-                                    isEditMode = false
-                                }
-                            } catch (e: Exception) {
-                                // Handle error
-                            }
+            // Profile Image Section
+            Box(contentAlignment = Alignment.BottomEnd) {
+                Surface(
+                    shape = CircleShape,
+                    border = BorderStroke(4.dp, MaterialTheme.colorScheme.primary),
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.size(160.dp)
+                ) {
+                    if (profileImage != null) {
+                        Image(
+                            bitmap = profileImage!!.asImageBitmap(),
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
                         }
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Guardar Cambios")
+                    }
                 }
-                OutlinedButton(
-                    onClick = {
-                        // Reset values and exit edit mode
-                        nombreCompleto = user?.nombreCompleto ?: ""
-                        correo = user?.correo ?: ""
-                        nombreUsuario = user?.nombreUsuario ?: ""
-                        isEditMode = false
-                    },
-                    modifier = Modifier.weight(1f)
+                
+                FloatingActionButton(
+                    onClick = { cameraLauncher.launch(null) },
+                    modifier = Modifier.size(48.dp),
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
                 ) {
-                    Text("Cancelar")
+                    Icon(
+                        imageVector = Icons.Default.Edit, 
+                        contentDescription = "Change Photo",
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
-        } else {
-            // View Mode - Display user info
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Nombre: ${user?.nombreCompleto ?: "N/A"}", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Usuario: ${user?.nombreUsuario ?: "N/A"}", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Correo: ${user?.correo ?: "N/A"}", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "RUT: ${user?.rut ?: "N/A"}", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Rol: ${user?.rol ?: "N/A"}", style = MaterialTheme.typography.bodyLarge)
-                }
-            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = user?.nombreUsuario ?: "Jugador Desconocido", 
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = { isEditMode = true },
+            // Points Card
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Editar Perfil")
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${user?.puntos ?: 0} XP",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (isEditMode) {
+                TextField(
+                    value = nombreCompleto,
+                    onValueChange = { nombreCompleto = it },
+                    label = { Text("Nombre Completo") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = correo,
+                    onValueChange = { correo = it },
+                    label = { Text("Correo") },
+                    modifier = Modifier.fillMaxWidth(),
+                     colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                     Button(
+                        onClick = {
+                            scope.launch {
+                                try {
+                                    user?.let {
+                                        // Convert Bitmap to Base64
+                                        var fotoPerfilBase64: String? = user.foto_perfil
+                                        profileImage?.let { bitmap ->
+                                            val byteArrayOutputStream = ByteArrayOutputStream()
+                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+                                            val byteArray = byteArrayOutputStream.toByteArray()
+                                            fotoPerfilBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+                                        }
+
+                                        val updatedUser = it.copy(
+                                            nombreCompleto = nombreCompleto,
+                                            correo = correo,
+                                            nombreUsuario = nombreUsuario,
+                                            foto_perfil = fotoPerfilBase64
+                                        )
+                                        RetrofitClient.instance.updateUser(updatedUser)
+                                        UserSession.setUser(updatedUser)
+                                        isEditMode = false
+                                    }
+                                } catch (e: Exception) { }
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("GUARDAR") }
+                    
+                    OutlinedButton(
+                        onClick = { isEditMode = false },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("CANCELAR") }
+                }
+
+            } else {
+                // Info Cards
+                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ProfileInfoItem("Nombre Completo", user?.nombreCompleto ?: "", Icons.Default.Person)
+                    ProfileInfoItem("Correo", user?.correo ?: "", Icons.Default.Email)
+                    ProfileInfoItem("RUT", user?.rut ?: "", Icons.Default.Face)
+                    ProfileInfoItem("Rol", user?.rol ?: "", Icons.Default.Settings)
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = { isEditMode = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("EDITAR PERFIL")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileInfoItem(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
