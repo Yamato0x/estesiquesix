@@ -14,5 +14,7 @@ data class User(
     val correo: String,
     val rol: String,
     @SerializedName("puntos")
-    val puntos: Int? = 0
+    val puntos: Int? = 0,
+    @SerializedName("foto_perfil")
+    val foto_perfil: String? = null
 )

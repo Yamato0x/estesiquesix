@@ -41,6 +41,10 @@ public class User {
     @JsonProperty("puntos")
     private Integer puntos;
 
+    @Column(name = "foto_perfil", columnDefinition = "TEXT")
+    @JsonProperty("foto_perfil")
+    private String fotoPerfil;
+
     public User() {
     }
 
@@ -117,5 +121,13 @@ public class User {
 
     public void setPuntos(Integer puntos) {
         this.puntos = puntos;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 }

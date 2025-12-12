@@ -11,6 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import android.graphics.BitmapFactory
+import android.util.Base64
+import java.io.ByteArrayOutputStream
 import com.example.myapplication.data.UserSession
 import com.example.myapplication.data.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -22,7 +25,17 @@ fun ProfileScreen() {
     var nombreCompleto by remember { mutableStateOf(user?.nombreCompleto ?: "") }
     var correo by remember { mutableStateOf(user?.correo ?: "") }
     var nombreUsuario by remember { mutableStateOf(user?.nombreUsuario ?: "") }
-    var profileImage by remember { mutableStateOf<Bitmap?>(null) }
+
+    var profileImage by remember { 
+        mutableStateOf<Bitmap?>(
+            if (!user?.foto_perfil.isNullOrEmpty()) {
+                try {
+                    val decodedString = Base64.decode(user!!.foto_perfil, Base64.DEFAULT)
+                    BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                } catch (e: Exception) { null }
+            } else { null }
+        ) 
+    }
     val scope = rememberCoroutineScope()
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -94,10 +107,20 @@ fun ProfileScreen() {
                         scope.launch {
                             try {
                                 user?.let {
+                                    // Convert Bitmap to Base64
+                                    var fotoPerfilBase64: String? = user.foto_perfil
+                                    profileImage?.let { bitmap ->
+                                        val byteArrayOutputStream = ByteArrayOutputStream()
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)
+                                        val byteArray = byteArrayOutputStream.toByteArray()
+                                        fotoPerfilBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+                                    }
+
                                     val updatedUser = it.copy(
                                         nombreCompleto = nombreCompleto,
                                         correo = correo,
-                                        nombreUsuario = nombreUsuario
+                                        nombreUsuario = nombreUsuario,
+                                        foto_perfil = fotoPerfilBase64
                                     )
                                     RetrofitClient.instance.updateUser(updatedUser)
                                     UserSession.setUser(updatedUser)
