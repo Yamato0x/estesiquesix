@@ -18,6 +18,13 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import androidx.compose.ui.platform.LocalContext
+import kotlin.math.sqrt
 
 @Composable
 fun CartScreen() {
@@ -45,6 +52,56 @@ fun CartScreen() {
 
     LaunchedEffect(Unit) {
         refreshCart()
+    }
+
+    // Shake Detection
+    val context = LocalContext.current
+    val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
+    val accelerometer = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
+    var lastShakeTime by remember { mutableStateOf(0L) }
+
+    DisposableEffect(Unit) {
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
+                event?.let {
+                    val x = it.values[0]
+                    val y = it.values[1]
+                    val z = it.values[2]
+                    
+                    val gX = x / SensorManager.GRAVITY_EARTH
+                    val gY = y / SensorManager.GRAVITY_EARTH
+                    val gZ = z / SensorManager.GRAVITY_EARTH
+                    
+                    val gForce = sqrt(gX * gX + gY * gY + gZ * gZ)
+                    
+                    if (gForce > 2.7f) { // Shake threshold
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastShakeTime > 500) { // Debounce 500ms
+                            lastShakeTime = currentTime
+                            if (cartItems.isNotEmpty()) {
+                                scope.launch {
+                                    try {
+                                        userId?.let { uid ->
+                                            RetrofitClient.instance.clearCart(uid)
+                                            refreshCart()
+                                            snackbarMessage = "¡Carrito vaciado al agitar!"
+                                        }
+                                    } catch (e: Exception) {
+                                        // Ignore or log
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+
+        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        onDispose {
+            sensorManager.unregisterListener(listener)
+        }
     }
 
     LaunchedEffect(snackbarMessage) {
