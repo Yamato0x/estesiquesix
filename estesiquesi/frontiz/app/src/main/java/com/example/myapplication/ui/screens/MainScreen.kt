@@ -60,6 +60,11 @@ fun MainScreen() {
             composable(Screen.Products.route) { ProductsScreen(navController) }
             composable(Screen.Cart.route) { CartScreen() }
             composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.Blogs.route) { BlogScreen(navController) }
+            composable(Screen.Blog1.route) { Blog1Screen() }
+            composable(Screen.Blog2.route) { Blog2Screen() }
+            composable(Screen.AboutUs.route) { AboutUsScreen() }
+            composable(Screen.Contact.route) { ContactScreen() }
         }
     }
 }
@@ -69,4 +74,9 @@ sealed class Screen(val route: String, val resourceId: String, val icon: android
     object Products : Screen("products", "Productos", Icons.Filled.List)
     object Cart : Screen("cart", "Carrito", Icons.Filled.ShoppingCart)
     object Profile : Screen("profile", "Perfil", Icons.Filled.Person)
+    object Blogs : Screen("blogs", "Blogs", Icons.Filled.List)
+    object Blog1 : Screen("blog1", "Anime", Icons.Filled.List)
+    object Blog2 : Screen("blog2", "Gaming", Icons.Filled.List)
+    object AboutUs : Screen("about_us", "Nosotros", Icons.Filled.Person)
+    object Contact : Screen("contact", "Contacto", Icons.Filled.Person)
 }

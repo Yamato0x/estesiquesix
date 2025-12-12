@@ -3,6 +3,7 @@ package com.example.myapplication.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -62,6 +63,39 @@ fun HomeScreen(navController: NavController) {
                         }
                     }
                 )
+            }
+        }
+
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+            text = "Explora Más",
+            style = MaterialTheme.typography.titleLarge
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = { navController.navigate("blogs") },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Blogs")
+            }
+            Button(
+                onClick = { navController.navigate("about_us") },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Nosotros")
+            }
+            Button(
+                onClick = { navController.navigate("contact") },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Contacto")
             }
         }
     }
