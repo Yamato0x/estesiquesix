@@ -59,7 +59,35 @@ public class CartService {
         return total;
     }
 
+    @Autowired
+    private com.example.demo.repository.UserRepository userRepository;
+
     public List<Cart> getCartItems(User usuario) {
         return cartRepository.findByUsuario(usuario);
+    }
+
+    @Transactional
+    public Integer checkout(User usuario) {
+        BigDecimal total = totalPrecio(usuario);
+        if (total.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El carrito está vacío o el total es cero");
+        }
+
+        // Calculate 5% points
+        BigDecimal pointsDecimal = total.multiply(new BigDecimal("0.05"));
+        int puntosGanados = pointsDecimal.intValue();
+
+        // Update user points
+        Integer currentPoints = usuario.getPuntos();
+        if (currentPoints == null) {
+            currentPoints = 0;
+        }
+        usuario.setPuntos(currentPoints + puntosGanados);
+        userRepository.save(usuario);
+
+        // Clear cart
+        eliminarCarrito(usuario);
+
+        return puntosGanados;
     }
 }

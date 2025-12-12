@@ -69,4 +69,11 @@ public class CartController {
         List<Cart> items = cartService.getCartItems(user);
         return ResponseEntity.ok(items);
     }
+
+    @PostMapping("/checkout/{userId}")
+    public ResponseEntity<Integer> checkout(@PathVariable Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Integer puntosGanados = cartService.checkout(user);
+        return ResponseEntity.ok(puntosGanados);
+    }
 }

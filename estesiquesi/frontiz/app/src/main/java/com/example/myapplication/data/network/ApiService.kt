@@ -31,6 +31,9 @@ interface ApiService {
     @GET("api/cart/items/{userId}")
     suspend fun getCartItems(@Path("userId") userId: Long): List<com.example.myapplication.data.model.Cart>
 
+    @POST("api/cart/checkout/{userId}")
+    suspend fun checkout(@Path("userId") userId: Long): Int
+
     // Product Endpoints
     @POST("api/products/create")
     suspend fun createProduct(

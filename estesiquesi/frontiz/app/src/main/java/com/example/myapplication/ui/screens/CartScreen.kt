@@ -24,6 +24,8 @@ fun CartScreen() {
     var cartItems by remember { mutableStateOf<List<Cart>>(emptyList()) }
     var total by remember { mutableStateOf(BigDecimal.ZERO) }
     var snackbarMessage by remember { mutableStateOf<String?>(null) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    var pointsEarned by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val userId = UserSession.getUser()?.userid
@@ -158,6 +160,29 @@ fun CartScreen() {
                     scope.launch {
                         try {
                             userId?.let {
+                                val points = RetrofitClient.instance.checkout(it)
+                                refreshCart()
+                                pointsEarned = points
+                                showSuccessDialog = true
+                            }
+                        } catch (e: Exception) {
+                            snackbarMessage = "Error al realizar compra: ${e.message}"
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = cartItems.isNotEmpty()
+            ) {
+                Text("Realizar Compra")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        try {
+                            userId?.let {
                                 RetrofitClient.instance.clearCart(it)
                                 refreshCart()
                                 snackbarMessage = "Carrito vaciado"
@@ -174,6 +199,19 @@ fun CartScreen() {
                 Text("Vaciar Carrito")
             }
         }
+    }
+
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { showSuccessDialog = false },
+            title = { Text("Compra Exitosa") },
+            text = { Text("Se ha realizado la compra con éxito.\nHas ganado $pointsEarned puntos.") },
+            confirmButton = {
+                Button(onClick = { showSuccessDialog = false }) {
+                    Text("Aceptar")
+                }
+            }
+        )
     }
 }
 
