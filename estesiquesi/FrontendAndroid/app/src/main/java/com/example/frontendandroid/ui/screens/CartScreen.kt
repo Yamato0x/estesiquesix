@@ -56,7 +56,7 @@ fun CartScreen(
                     
                     val gForce = sqrt(gX * gX + gY * gY + gZ * gZ)
                     
-                    if (gForce > 2.7f) { // Shake threshold
+                    if (gForce > 1.5f) { // Shake threshold lowered for emulator
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastShakeTime > 500) { // Debounce 500ms
                             lastShakeTime = currentTime

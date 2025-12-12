@@ -16,17 +16,12 @@ import com.example.myapplication.ui.components.ProductCard
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        try {
-            products = RetrofitClient.instance.getProducts()
-        } catch (e: Exception) {
-            // Handle error
-        }
-    }
+fun HomeScreen(
+    navController: NavController,
+    viewModel: com.example.myapplication.ui.viewmodel.HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val products by viewModel.products
+    // val isLoading by viewModel.isLoading // Can be used for loading indicator
 
     Column(
         modifier = Modifier
@@ -53,14 +48,8 @@ fun HomeScreen(navController: NavController) {
                     product = product,
                     modifier = Modifier.width(200.dp),
                     onAddToCart = { selectedProduct ->
-                        scope.launch {
-                            try {
-                                // Hardcoded userId for demo purposes, should be retrieved from session
-                                RetrofitClient.instance.addToCart(userId = 1, productId = selectedProduct.idproducto!!, quantity = 1)
-                            } catch (e: Exception) {
-                                // Handle error
-                            }
-                        }
+                        // Hardcoded userId for demo purposes
+                        viewModel.addToCart(userId = 1, product = selectedProduct)
                     }
                 )
             }

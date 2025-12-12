@@ -38,11 +38,21 @@ fun ProfileScreen(
     val nombreUsuario by viewModel.nombreUsuario
     val profileImage by viewModel.profileImage
 
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
         viewModel.onCameraResult(bitmap)
     }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            cameraLauncher.launch(null)
+        }
+    }
+
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -95,7 +105,9 @@ fun ProfileScreen(
                 }
                 
                 FloatingActionButton(
-                    onClick = { cameraLauncher.launch(null) },
+                    onClick = { 
+                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    },
                     modifier = Modifier.size(48.dp),
                     containerColor = MaterialTheme.colorScheme.secondary,
                     contentColor = MaterialTheme.colorScheme.onSecondary
