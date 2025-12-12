@@ -18,6 +18,7 @@ fun ProductDialog(
     var nombre by remember { mutableStateOf(product?.nombreproducto ?: "") }
     var precio by remember { mutableStateOf(product?.precioproducto?.toString() ?: "") }
     var categoria by remember { mutableStateOf(product?.categoria ?: "") }
+    var imagenUrl by remember { mutableStateOf(product?.imagen_url ?: "") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -55,6 +56,13 @@ fun ProductDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                TextField(
+                    value = imagenUrl,
+                    onValueChange = { imagenUrl = it },
+                    label = { Text("URL de la Imagen") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -72,7 +80,8 @@ fun ProductDialog(
                                     idproducto = product?.idproducto,
                                     nombreproducto = nombre,
                                     precioproducto = BigDecimal(precio),
-                                    categoria = categoria
+                                    categoria = categoria,
+                                    imagen_url = imagenUrl
                                 )
                                 onSave(newProduct)
                             } catch (e: Exception) {
