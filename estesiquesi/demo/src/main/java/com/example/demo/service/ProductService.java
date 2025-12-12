@@ -48,4 +48,29 @@ public class ProductService {
     public List<Product> buscarPorNombre(String nombre) {
         return productRepository.findByNombreproductoContainingIgnoreCase(nombre);
     }
+
+    @Autowired
+    private com.example.demo.repository.UserRepository userRepository;
+
+    public User canjearProducto(User usuario, Long productoId) {
+        Product producto = productRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        Integer puntosRequeridos = producto.getPrecio_puntos();
+        if (puntosRequeridos == null || puntosRequeridos <= 0) {
+            throw new RuntimeException("Este producto no se puede canjear con puntos");
+        }
+
+        Integer puntosUsuario = usuario.getPuntos();
+        if (puntosUsuario == null) {
+            puntosUsuario = 0;
+        }
+
+        if (puntosUsuario < puntosRequeridos) {
+            throw new RuntimeException("No tienes suficientes puntos para canjear este producto");
+        }
+
+        usuario.setPuntos(puntosUsuario - puntosRequeridos);
+        return userRepository.save(usuario);
+    }
 }

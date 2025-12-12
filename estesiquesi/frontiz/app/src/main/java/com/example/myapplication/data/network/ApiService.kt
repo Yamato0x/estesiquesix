@@ -59,6 +59,12 @@ interface ApiService {
     @GET("api/products/search")
     suspend fun searchProducts(@Query("nombre") nombre: String): List<Product>
 
+    @POST("api/products/redeem")
+    suspend fun redeemProduct(
+        @Query("userId") userId: Long,
+        @Query("productId") productId: Long
+    ): User
+
     // User Endpoints
     @POST("api/users/create")
     suspend fun createUser(

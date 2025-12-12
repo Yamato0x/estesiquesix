@@ -55,4 +55,12 @@ public class ProductController {
         List<Product> productos = productService.buscarPorNombre(nombre);
         return ResponseEntity.ok(productos);
     }
+
+    @PostMapping("/redeem")
+    public ResponseEntity<User> canjearProducto(@RequestParam Long userId, @RequestParam Long productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User usuarioActualizado = productService.canjearProducto(user, productId);
+        return ResponseEntity.ok(usuarioActualizado);
+    }
 }

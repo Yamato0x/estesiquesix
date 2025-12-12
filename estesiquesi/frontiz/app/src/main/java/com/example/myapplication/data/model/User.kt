@@ -12,5 +12,7 @@ data class User(
     val nombreUsuario: String,
     val contrasena: String,
     val correo: String,
-    val rol: String
+    val rol: String,
+    @SerializedName("puntos")
+    val puntos: Int? = 0
 )

@@ -1,17 +1,17 @@
 package com.example.myapplication.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.model.Product
 import java.text.NumberFormat
 import java.util.Locale
-
 import coil.compose.AsyncImage
+import com.example.myapplication.data.UserSession
+import com.example.myapplication.data.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProductCard(
@@ -56,12 +56,79 @@ fun ProductCard(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+            
+            product.precio_puntos?.let { points ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$points Puntos",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
-            androidx.compose.material3.Button(
-                onClick = { onAddToCart(product) },
-                modifier = Modifier.align(androidx.compose.ui.Alignment.End)
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                Text("Agregar")
+                val scope = rememberCoroutineScope()
+                var showDialog by remember { mutableStateOf(false) }
+                var dialogMessage by remember { mutableStateOf("") }
+                var dialogTitle by remember { mutableStateOf("") }
+
+                if (product.precio_puntos != null && product.precio_puntos > 0) {
+                    Button(
+                        onClick = {
+                            val userPoints = UserSession.getUser()?.puntos ?: 0
+                            if (userPoints >= product.precio_puntos) {
+                                scope.launch {
+                                    try {
+                                        UserSession.getUser()?.userid?.let { uid ->
+                                             val updatedUser = RetrofitClient.instance.redeemProduct(uid, product.idproducto!!)
+                                             UserSession.setUser(updatedUser) // Update session with new points
+                                             dialogTitle = "Canje Exitoso"
+                                             dialogMessage = "Has canjeado ${product.nombreproducto}. Te quedan ${updatedUser.puntos} puntos."
+                                             showDialog = true
+                                        }
+                                    } catch (e: Exception) {
+                                        dialogTitle = "Error"
+                                        dialogMessage = "Error al canjear: ${e.message}"
+                                        showDialog = true
+                                    }
+                                }
+                            } else {
+                                dialogTitle = "Puntos Insuficientes"
+                                dialogMessage = "No tienes suficientes puntos. Necesitas ${product.precio_puntos} y tienes $userPoints."
+                                showDialog = true
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("Canjear")
+                    }
+                }
+
+                Button(
+                    onClick = { onAddToCart(product) }
+                ) {
+                    Text("Agregar")
+                }
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text(dialogTitle) },
+                        text = { Text(dialogMessage) },
+                        confirmButton = {
+                            Button(onClick = { showDialog = false }) {
+                                Text("Aceptar")
+                            }
+                        }
+                    )
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ fun ProductDialog(
     var precio by remember { mutableStateOf(product?.precioproducto?.toString() ?: "") }
     var categoria by remember { mutableStateOf(product?.categoria ?: "") }
     var imagenUrl by remember { mutableStateOf(product?.imagen_url ?: "") }
+    var precioPuntos by remember { mutableStateOf(product?.precio_puntos?.toString() ?: "") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -63,6 +64,13 @@ fun ProductDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                TextField(
+                    value = precioPuntos,
+                    onValueChange = { precioPuntos = it },
+                    label = { Text("Precio en Puntos (Opcional)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -81,7 +89,8 @@ fun ProductDialog(
                                     nombreproducto = nombre,
                                     precioproducto = BigDecimal(precio),
                                     categoria = categoria,
-                                    imagen_url = imagenUrl
+                                    imagen_url = imagenUrl,
+                                    precio_puntos = precioPuntos.toIntOrNull()
                                 )
                                 onSave(newProduct)
                             } catch (e: Exception) {
