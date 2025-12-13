@@ -40,4 +40,8 @@ public class UserService {
 
         return user;
     }
+
+    public java.util.List<User> listarUsuarios() {
+        return userRepository.findAll();
+    }
 }

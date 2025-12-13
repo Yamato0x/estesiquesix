@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -30,6 +31,9 @@ sealed class Screen(val route: String, val title: String, val icon: androidx.com
     object Blog2 : Screen("blog2", "Blog eSports")
     object AboutUs : Screen("about_us", "Nosotros")
     object Contact : Screen("contact", "Contacto")
+    
+    // Admin Only
+    object AdminUsers : Screen("admin_users", "Usuarios", Icons.Filled.Settings)
 }
 
 @Composable
@@ -37,6 +41,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     // Determine start destination based on session, but for now simple login
     val startDestination = if (UserSession.isLoggedIn()) Screen.Home.route else Screen.Login.route
+    val isAdmin = UserSession.isAdmin()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -54,7 +59,11 @@ fun MainScreen() {
         bottomBar = {
             if (currentRoute != Screen.Login.route && currentRoute != Screen.Register.route) {
                 NavigationBar {
-                    val items = listOf(Screen.Home, Screen.Products, Screen.Cart, Screen.Profile)
+                    val items = mutableListOf(Screen.Home, Screen.Products, Screen.Cart, Screen.Profile)
+                    if (isAdmin) {
+                        items.add(Screen.AdminUsers)
+                    }
+                    
                     items.forEach { screen ->
                         
                         // Special selection logic for Home to encompass sub-screens
@@ -98,6 +107,7 @@ fun MainScreen() {
             composable(Screen.Login.route) {
                 LoginScreen(
                     onLoginSuccess = {
+                        // Refresh Admin status
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
@@ -123,6 +133,7 @@ fun MainScreen() {
             composable(Screen.Products.route) { ProductsScreen() }
             composable(Screen.Cart.route) { CartScreen() }
             composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.AdminUsers.route) { AdminUsersScreen() }
             
             composable(Screen.Blogs.route) { BlogScreen(navController) }
             composable(Screen.Blog1.route) { Blog1Screen() }

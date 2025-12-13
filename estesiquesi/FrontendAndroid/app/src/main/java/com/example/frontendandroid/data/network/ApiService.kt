@@ -79,6 +79,9 @@ interface ApiService {
     @GET("api/users/{id}")
     suspend fun getUser(@Path("id") id: Long): User
 
+    @GET("api/users/all")
+    suspend fun getAllUsers(): List<User>
+
     @POST("api/users/login")
     suspend fun login(@Body loginRequest: LoginRequest): User
 }

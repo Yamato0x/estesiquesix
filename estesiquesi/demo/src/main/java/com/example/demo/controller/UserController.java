@@ -37,4 +37,9 @@ public class UserController {
         User user = userService.login(loginRequest.getNombreUsuario(), loginRequest.getContrasena());
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<java.util.List<User>> listarUsuarios() {
+        return ResponseEntity.ok(userService.listarUsuarios());
+    }
 }
