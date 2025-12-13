@@ -108,7 +108,7 @@ class ProductsViewModel : ViewModel() {
                         productId = product.idproducto,
                         quantity = 1
                     )
-                    snackbarMessage.value = "Producto agregado al carrito"
+                    snackbarMessage.value = "¡${product.nombreproducto} agregado al carrito!"
                 } else {
                     snackbarMessage.value = "Error: Usuario no identificado"
                 }

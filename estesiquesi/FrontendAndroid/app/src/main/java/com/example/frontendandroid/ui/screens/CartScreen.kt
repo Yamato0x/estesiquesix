@@ -42,6 +42,11 @@ fun CartScreen(
     val accelerometer = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
     var lastShakeTime by remember { mutableStateOf(0L) }
 
+    // Force refresh when screen is entered
+    LaunchedEffect(Unit) {
+        viewModel.refreshCart()
+    }
+
     DisposableEffect(Unit) {
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
