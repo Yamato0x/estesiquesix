@@ -107,5 +107,6 @@ cd FrontendAndroid
 
 ## 👨‍� Autores
 Proyecto desarrollado para la asignatura de Desarrollo de Aplicaciones Móviles.
-
+Ignacio Salazar
+Javier quiroga
 *   **Equipo Level-Up Gamer**
