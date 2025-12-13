@@ -41,21 +41,47 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // Define sub-routes that belong to "Home" visually
+    val homeSubRoutes = listOf(
+        Screen.Blogs.route,
+        Screen.Blog1.route,
+        Screen.Blog2.route,
+        Screen.AboutUs.route,
+        Screen.Contact.route
+    )
+
     Scaffold(
         bottomBar = {
             if (currentRoute != Screen.Login.route && currentRoute != Screen.Register.route) {
                 NavigationBar {
                     val items = listOf(Screen.Home, Screen.Products, Screen.Cart, Screen.Profile)
                     items.forEach { screen ->
+                        
+                        // Special selection logic for Home to encompass sub-screens
+                        val isSelected = if (screen == Screen.Home) {
+                            currentRoute == Screen.Home.route || currentRoute in homeSubRoutes
+                        } else {
+                            currentRoute == screen.route
+                        }
+
                         NavigationBarItem(
                             icon = { Icon(screen.icon!!, contentDescription = screen.title) },
                             label = { Text(screen.title) },
-                            selected = currentRoute == screen.route,
+                            selected = isSelected,
                             onClick = {
-                                navController.navigate(screen.route) {
-                                    popUpTo(Screen.Home.route) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
+                                if (screen == Screen.Home && currentRoute in homeSubRoutes) {
+                                    // FORCE RESET TO HOME: Don't save state, just go there
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Home.route) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    // STANDARD NAVIGATION
+                                    navController.navigate(screen.route) {
+                                        popUpTo(Screen.Home.route) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
                             }
                         )

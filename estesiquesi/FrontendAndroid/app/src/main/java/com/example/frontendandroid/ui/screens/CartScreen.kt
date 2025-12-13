@@ -6,10 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.frontendandroid.ui.viewmodel.CartViewModel
@@ -97,7 +99,7 @@ fun CartScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Text(text = "Carrito de Compras", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "CARRITO DE COMPRAS", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold))
             Spacer(modifier = Modifier.height(16.dp))
 
             if (cartItems.isEmpty()) {
@@ -107,7 +109,22 @@ fun CartScreen(
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("El carrito está vacío", style = MaterialTheme.typography.bodyLarge)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                             imageVector = Icons.Filled.ShoppingCart,
+                             contentDescription = null,
+                             modifier = Modifier.size(120.dp),
+                             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "TU CARRITO ESTÁ VACÍO",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
@@ -166,17 +183,22 @@ fun CartScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Total: ${formatCurrency(total)}",
-                style = MaterialTheme.typography.headlineSmall
+                text = "TOTAL: ${formatCurrency(total)}",
+                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { viewModel.checkout() },
                 modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 enabled = cartItems.isNotEmpty()
             ) {
-                Text("Realizar Compra")
+                Text("REALIZAR COMPRA", fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -187,7 +209,7 @@ fun CartScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 enabled = cartItems.isNotEmpty()
             ) {
-                Text("Vaciar Carrito")
+                Text("VACIAR CARRITO", fontWeight = FontWeight.Bold)
             }
         }
     }

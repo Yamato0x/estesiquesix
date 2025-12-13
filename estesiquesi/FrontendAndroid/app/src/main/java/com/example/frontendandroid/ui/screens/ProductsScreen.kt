@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.frontendandroid.ui.components.ConfirmationDialog
@@ -44,7 +46,9 @@ fun ProductsScreen(
         floatingActionButton = {
             if (isAdmin) {
                 FloatingActionButton(
-                    onClick = { viewModel.startCreateProduct() }
+                    onClick = { viewModel.startCreateProduct() },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.Black
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = "Crear Producto")
                 }
@@ -57,11 +61,19 @@ fun ProductsScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            TextField(
+            OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChanged(it) },
-                label = { Text("Buscar productos") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("BUSCAR PRODUCTO") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha=0.5f),
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
 
